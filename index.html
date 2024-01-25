@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bookshelf App - Maulana Sodiqin</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="main__layout" id="root">
+      <header class="header__layout">
+        <nav class="header__nav__layout">
+          <div class="header__title">
+            <figcaption class="header__caption">Bookshelf App</figcaption>
+            <div>
+              <input
+                id="search-book"
+                type="search"
+                class="field__input"
+                style="width: 200px; height: 25px"
+                placeholder="Cari Buku"
+              />
+            </div>
+          </div>
+          <div class="switch-container">
+            <span id="switch-label" class="switch-label">
+              <span id="switch-text"></span>
+            </span>
+            <label class="switch">
+              <input id="switch" type="checkbox" />
+              <span class="slider" />
+            </label>
+          </div>
+        </nav>
+      </header>
+
+      <section class="header__layout">
+        <form id="book-form" class="form">
+          <h1 id="form-caption" class="form__caption"></h1>
+          <fieldset class="field__layout">
+            <label class="field__label" for="title">Judul</label>
+            <input
+              class="field__input"
+              placeholder="Masukkan Judul Buku"
+              type="text"
+              name="title"
+              id="title"
+            />
+          </fieldset>
+
+          <fieldset class="field__layout">
+            <label class="field__label" for="author">Penulis</label>
+            <input
+              class="field__input"
+              placeholder="Masukkan Penulis Buku"
+              type="text"
+              name="author"
+              id="author"
+            />
+          </fieldset>
+
+          <fieldset class="field__layout">
+            <label class="field__label" for="year">Tahun</label>
+            <input
+              class="field__input"
+              placeholder="Masukkan Tahun"
+              type="number"
+              name="year"
+              id="year"
+            />
+          </fieldset>
+
+          <fieldset class="field__checkbox__layout">
+            <input
+              class="field__input"
+              type="checkbox"
+              name="isComplete"
+              id="isComplete"
+            />
+            <label class="field__label" for="isCompleted">Selesai?</label>
+          </fieldset>
+
+          <button type="submit" id="button">Simpan</button>
+        </form>
+      </section>
+
+      <section class="book__layout">
+        <div class="book__data">
+          <div class="between">
+            <span class="book__data__caption">Belum Selesai Dibaca</span>
+            <span class="book__data__caption">0</span>
+          </div>
+          <hr style="margin-bottom: 10px" />
+          <section id="book-uncomplete"></section>
+        </div>
+
+        <div class="book__data">
+          <div class="between">
+            <span class="book__data__caption">Sudah Selesai Dibaca</span>
+            <span class="book__data__caption">0</span>
+          </div>
+          <hr style="margin-bottom: 10px" />
+          <section id="book-complete"></section>
+        </div>
+      </section>
+    </main>
+    <script src="script.js"></script>
+  </body>
+</html>
