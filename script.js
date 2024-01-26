@@ -5,6 +5,8 @@ const isUpdate = false;
 const button = document.getElementById("button");
 const bookComplete = document.getElementById("book-complete");
 const bookUncomplete = document.getElementById("book-uncomplete");
+const countComplete = document.getElementById("count-complete-book");
+const countUncomplete = document.getElementById("count-uncomplete-book");
 
 //Create Books
 const bookTitle = document.getElementById("title");
@@ -47,7 +49,6 @@ const booksToCreate = [];
 
 const createBook = (e) => {
   e.preventDefault();
-
   const book = {
     id: +new Date(),
     title: bookTitle.value,
@@ -55,25 +56,20 @@ const createBook = (e) => {
     year: bookYear.value,
     isComplete: bookIsComplete.checked,
   };
-
-  console.log(book);
-
-  booksToCreate.push(book);
-
-  localStorage.setItem("books", JSON.stringify(booksToCreate));
-
-  // Reset the form fields
+  books.push(book);
   bookForm.reset();
-
   bookComplete.innerHTML =
     renderCompletePage(books).length === 0
       ? bookNotFound
       : renderCompletePage(books).join("");
-
   bookUncomplete.innerHTML =
     renderUncompletePage(books).length === 0
       ? bookNotFound
       : renderUncompletePage(books).join("");
+
+  localStorage.setItem("books", JSON.stringify(books));
+  countComplete.innerHTML = renderCompletePage(books).length;
+  countUncomplete.innerHTML = renderUncompletePage(books).length;
 };
 
 const form = document.getElementById("book-form");
@@ -297,21 +293,31 @@ const bookSearch = () => {
   const filteredBook = books
     .filter((book) => book.title.toLowerCase().includes(search.toLowerCase()))
     .map((book) => bookContent(book));
-  bookComplete.innerHTML =
-    filteredBook.filter((x) => x.isComplete).length === 0
-      ? bookNotFound
-      : filteredBook.filter((x) => x.isComplete).join("");
 
-  bookUncomplete.innerHTML =
-    filteredBook.filter((x) => !x.isComplete).length === 0
-      ? bookNotFound
-      : filteredBook.filter((x) => !x.isComplete).join("");
+  if (search) {
+    bookComplete.innerHTML =
+      filteredBook.filter((x) => x.isComplete).length === 0
+        ? bookNotFound
+        : filteredBook.filter((x) => x.isComplete).join("");
+    bookUncomplete.innerHTML =
+      filteredBook.filter((x) => !x.isComplete).length === 0
+        ? bookNotFound
+        : filteredBook.filter((x) => !x.isComplete).join("");
+  } else {
+    bookComplete.innerHTML =
+      renderCompletePage(books).length === 0
+        ? bookNotFound
+        : renderCompletePage(books).join("");
+
+    bookUncomplete.innerHTML =
+      renderUncompletePage(books).length === 0
+        ? bookNotFound
+        : renderUncompletePage(books).join("");
+  }
 };
 
 const searchInput = document.getElementById("search-book");
 searchInput.addEventListener("input", bookSearch);
-
-bookSearch();
 
 bookComplete.innerHTML =
   renderCompletePage(books).length === 0
@@ -349,6 +355,10 @@ const getTheme = () => {
   }
 };
 
+const changeStatusBook = (id) => console.log("Change Status", id);
+const updateBook = (id) => console.log("Update", id);
+const deleteBook = (id) => console.log("Delete", id);
+
 themeSwitch.addEventListener("click", () => {
   if (themeSwitch.checked) {
     setTheme("dark");
@@ -370,5 +380,8 @@ document.documentElement.setAttribute("theme", getTheme());
 formCaption.innerText = isUpdate ? "Update Buku" : "Tambah Buku";
 
 button.innerText = isUpdate ? "Update" : "Simpan";
+
+countComplete.innerText = renderCompletePage(books).length;
+countUncomplete.innerHTML = renderUncompletePage(books).length;
 
 console.log("Books from localstorage", books);
