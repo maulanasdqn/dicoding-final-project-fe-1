@@ -36,7 +36,8 @@
 
       <section class="header__layout">
         <form id="book-form" class="form">
-          <h1 id="form-caption" class="form__caption"></h1>
+          <h1 id="form-caption" class="form__caption">Tambah Buku</h1>
+          <input type="hidden" name="id" id="id" />
           <fieldset class="field__layout">
             <label class="field__label" for="title">Judul</label>
             <input
@@ -81,6 +82,8 @@
           </fieldset>
 
           <button type="submit" id="button">Simpan</button>
+          <button type="submit" id="button-update">Update</button>
+          <button type="button" id="button-cancel">Cancel</button>
         </form>
       </section>
 

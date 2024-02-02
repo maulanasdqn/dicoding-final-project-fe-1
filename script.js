@@ -1,8 +1,10 @@
 const themeSwitch = document.getElementById("switch");
 const textSwitch = document.getElementById("switch-text");
 const formCaption = document.getElementById("form-caption");
-const isUpdate = false;
-const button = document.getElementById("button");
+const buttonCreate = document.getElementById("button");
+const buttonUpdate = document.getElementById("button-update");
+
+const buttonCancel = document.getElementById("button-cancel");
 const bookComplete = document.getElementById("book-complete");
 const bookUncomplete = document.getElementById("book-uncomplete");
 const countComplete = document.getElementById("count-complete-book");
@@ -14,6 +16,10 @@ const bookAuthor = document.getElementById("author");
 const bookYear = document.getElementById("year");
 const bookIsComplete = document.getElementById("isComplete");
 const bookForm = document.getElementById("book-form");
+const bookId = document.getElementById("id");
+
+buttonUpdate.style.display = "none";
+buttonCancel.style.display = "none";
 
 /**
  * Renders the complete page with content from completed books.
@@ -31,7 +37,7 @@ const renderCompletePage = () => {
  * @param {Array} books - The array of book objects
  * @returns {Array} - The array of incomplete books content
  */
-const renderUncompletePage = (books) => {
+const renderUncompletePage = () => {
   // Filter out the incomplete books and map their content
   return books
     .filter((book) => !book.isComplete)
@@ -45,7 +51,23 @@ const renderUncompletePage = (books) => {
  */
 const books = JSON.parse(localStorage.getItem("books")) || [];
 
-const booksToCreate = [];
+/* Helper Utils for rendering book list */
+const renderListBook = () => {
+  bookComplete.innerHTML =
+    renderCompletePage().length === 0
+      ? bookNotFound
+      : renderCompletePage().join("");
+
+  bookUncomplete.innerHTML =
+    renderUncompletePage().length === 0
+      ? bookNotFound
+      : renderUncompletePage().join("");
+};
+
+const renderTotalBook = () => {
+  countComplete.innerHTML = renderCompletePage().length;
+  countUncomplete.innerHTML = renderUncompletePage().length;
+};
 
 const createBook = (e) => {
   e.preventDefault();
@@ -58,24 +80,81 @@ const createBook = (e) => {
   };
   books.push(book);
   bookForm.reset();
-  bookComplete.innerHTML =
-    renderCompletePage(books).length === 0
-      ? bookNotFound
-      : renderCompletePage(books).join("");
-  bookUncomplete.innerHTML =
-    renderUncompletePage(books).length === 0
-      ? bookNotFound
-      : renderUncompletePage(books).join("");
-
   localStorage.setItem("books", JSON.stringify(books));
-  countComplete.innerHTML = renderCompletePage(books).length;
-  countUncomplete.innerHTML = renderUncompletePage(books).length;
+  renderListBook();
+  renderTotalBook();
 };
 
 const form = document.getElementById("book-form");
 
 // Add an event listener to the form
 form.addEventListener("submit", createBook);
+
+const updateBook = (e) => {
+  e.preventDefault();
+  const book = {
+    id: +bookId.value,
+    title: bookTitle.value,
+    author: bookAuthor.value,
+    year: bookYear.value,
+    isComplete: bookIsComplete.checked,
+  };
+
+  const index = books.findIndex((item) => item.id === book.id);
+  books[index] = book;
+  localStorage.setItem("books", JSON.stringify(books));
+  bookForm.reset();
+
+  renderListBook();
+  renderTotalBook();
+
+  buttonCancel.style.display = "none";
+  buttonUpdate.style.display = "none";
+  buttonCreate.style.display = "block";
+  formCaption.innerText = "Tambah Buku";
+};
+
+buttonUpdate.addEventListener("click", updateBook);
+
+const getBook = (id) => {
+  buttonCreate.style.display = "none";
+  buttonUpdate.style.display = "block";
+  buttonCancel.style.display = "block";
+
+  formCaption.innerText = "Update Buku";
+  form.scrollIntoView();
+
+  bookId.value = id;
+  /* Assign book that will be updated */
+  const book = books.find((book) => book.id === id);
+  bookTitle.value = book.title;
+  bookAuthor.value = book.author;
+  bookYear.value = book.year;
+  bookIsComplete.checked = book.isComplete;
+};
+
+const deleteBook = (id) => {
+  const book = books.find((book) => book.id === id);
+  const index = books.indexOf(book);
+  books.splice(index, 1);
+  localStorage.setItem("books", JSON.stringify(books));
+
+  renderListBook();
+  renderTotalBook();
+};
+
+const onCanceled = () => {
+  bookForm.reset();
+
+  if (formCaption.innerText === "Update Buku") {
+    buttonCreate.innerText = "Simpan";
+    formCaption.innerText = "Tambah Buku";
+  }
+
+  buttonCancel.style.display = "none";
+};
+
+buttonCancel.addEventListener("click", onCanceled);
 
 /**
  * SVG moon icon
@@ -158,7 +237,7 @@ const bookContent = ({ id, title, author, year }) => `
               </div>
               <div>
                 <svg
-                  onclick="updateBook(${id})"
+                  onclick="getBook(${id})"
                   class="svg-icon"
                   viewBox="0 0 24 24"
                   fill="none"
@@ -304,30 +383,12 @@ const bookSearch = () => {
         ? bookNotFound
         : filteredBook.filter((x) => !x.isComplete).join("");
   } else {
-    bookComplete.innerHTML =
-      renderCompletePage(books).length === 0
-        ? bookNotFound
-        : renderCompletePage(books).join("");
-
-    bookUncomplete.innerHTML =
-      renderUncompletePage(books).length === 0
-        ? bookNotFound
-        : renderUncompletePage(books).join("");
+    renderListBook();
   }
 };
 
 const searchInput = document.getElementById("search-book");
 searchInput.addEventListener("input", bookSearch);
-
-bookComplete.innerHTML =
-  renderCompletePage(books).length === 0
-    ? bookNotFound
-    : renderCompletePage(books).join("");
-
-bookUncomplete.innerHTML =
-  renderUncompletePage(books).length === 0
-    ? bookNotFound
-    : renderUncompletePage(books).join("");
 
 /**
  * Set the theme color in the local storage.
@@ -355,9 +416,13 @@ const getTheme = () => {
   }
 };
 
-const changeStatusBook = (id) => console.log("Change Status", id);
-const updateBook = (id) => console.log("Update", id);
-const deleteBook = (id) => console.log("Delete", id);
+const changeStatusBook = (id) => {
+  const book = books.find((book) => book.id === id);
+  book.isComplete = !book.isComplete;
+  localStorage.setItem("books", JSON.stringify(books));
+  renderListBook();
+  renderTotalBook();
+};
 
 themeSwitch.addEventListener("click", () => {
   if (themeSwitch.checked) {
@@ -377,11 +442,6 @@ themeSwitch.checked = getTheme() === "dark";
 
 document.documentElement.setAttribute("theme", getTheme());
 
-formCaption.innerText = isUpdate ? "Update Buku" : "Tambah Buku";
-
-button.innerText = isUpdate ? "Update" : "Simpan";
-
-countComplete.innerText = renderCompletePage(books).length;
-countUncomplete.innerHTML = renderUncompletePage(books).length;
-
-console.log("Books from localstorage", books);
+/* Init first render */
+renderListBook();
+renderTotalBook();
